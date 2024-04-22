@@ -26,10 +26,13 @@ mask = cv2.imread("mask.png")
 #Tracking
 tracker = Sort(max_age=20, min_hits=3, iou_threshold=0.3)
 
+limits = [360, 300, 1000, 320]
+
 while True:
     success, img = cap.read()
     img_region = cv2.bitwise_and(img, mask)
     results = model(img_region, stream=True)
+    detections = np.empty((0, 5))
 
     for r in results:
         boxes = r.boxes
@@ -46,9 +49,20 @@ while True:
             current_class = classNames[cls]
 
             if current_class == 'car' or current_class == 'truck' or current_class == 'bus' or current_class == 'motorbike' and conf > 0.3: 
-                cvzone.cornerRect(img, (x1, y1, w, h), l=15)
-                cvzone.putTextRect(img, f"{current_class} {conf}", (max(0, x1), max(35, y1)), scale=0.8, thickness=1, offset=5)
+                cvzone.cornerRect(img, (x1, y1, w, h), l=15, rt=5)
+                current_array = np.array([x1, y1, x2, y2, conf])
+                detections = np.vstack((detections, current_array))
 
+    results_tracker = tracker.update(detections)
+
+    cv2.line(img, (limits[0], limits[1]), (limits[2], limits[3]), (0, 0, 255), 5)
+
+    for result in results_tracker:
+        x1, y1, x2, y2, id = result
+        x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
+        print(result)
+        cvzone.cornerRect(img, (x1, y1, w, h), l=15, rt=2, colorR=(255, 0, 0))
+        cvzone.putTextRect(img, f"{int(id)}", (max(0, x1), max(35, y1)), scale=2, thickness=3, offset=8)
 
     cv2.imshow("img", img)
     cv2.imshow("img_region", img_region)
