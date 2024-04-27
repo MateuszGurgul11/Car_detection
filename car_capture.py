@@ -48,7 +48,7 @@ while True:
 
             current_class = classNames[cls]
 
-            if current_class == 'car' or current_class == 'truck' or current_class == 'bus' or current_class == 'motorbike' and conf > 0.6: 
+            if current_class == 'car' or current_class == 'truck' or current_class == 'bus' or current_class == 'motorbike' and conf > 0.8: 
                 # cvzone.cornerRect(img, (x1, y1, w, h), l=15, rt=5)
                 current_array = np.array([x1, y1, x2, y2, conf])
                 detections = np.vstack((detections, current_array))
@@ -72,12 +72,12 @@ while True:
                 total_counts.append(id)
                 cv2.line(img, (limits[0], limits[1]), (limits[2], limits[3]), (0, 255, 0), 5)
         
-        cvzone.putTextRect(img, f"Counts: {len(total_counts)}", (50, 50))
+    cvzone.putTextRect(img, f"Counts: {len(total_counts)}", (50, 50))
 
 
     cv2.imshow("img", img)
     # cv2.imshow("img_region", img_region)
-    key = cv2.waitKey(0)
+    key = cv2.waitKey(1)
     if key == 27:
         break
 
